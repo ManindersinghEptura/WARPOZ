@@ -1,40 +1,13 @@
 #!/usr/bin/env python3
 """
-Simple Patch Tracker - Works with Jira MCP without complex skill framework
-This script uses the same pattern as the working archibus-triage
+Simple Patch Tracker - Works with Jira MCP
+Accepts JSON data from agent and sends Teams notifications
 """
 
 import json
 import os
 import sys
 from datetime import datetime
-
-def analyze_patches():
-    """
-    Simple patch analysis using Jira MCP calls directly
-    """
-    print("🎯 **PATCH TICKET ANALYSIS**")
-    print("=" * 50)
-    
-    # This will use the Jira MCP that's available in the environment
-    # The actual Jira queries will be handled by the agent using MCP tools
-    
-    analysis_summary = {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC"),
-        "ready_to_start": [],
-        "blocked": [],
-        "in_progress": [],
-        "needs_review": []
-    }
-    
-    print(f"Analysis completed at {analysis_summary['timestamp']}")
-    print("\nTo use this script:")
-    print("1. The agent will use Jira MCP to fetch patch tickets")
-    print("2. Agent will analyze dependencies")
-    print("3. Agent will categorize tickets")
-    print("4. Agent will format results and send Teams notification")
-    
-    return analysis_summary
 
 def send_teams_notification(data):
     """
@@ -43,19 +16,30 @@ def send_teams_notification(data):
     webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
     
     if not webhook_url:
-        print("❌ TEAMS_WEBHOOK_URL not found in environment")
+        print("❌ TEAMS_WEBHOOK_URL not configured")
         return False
     
-    # Simple Teams message format
+    # Parse data if it's a string
+    if isinstance(data, str):
+        try:
+            data = json.loads(data)
+        except json.JSONDecodeError:
+            print(f"❌ Invalid JSON data: {data}")
+            return False
+    
+    # Build Teams message
+    total = len(data.get('ready_to_start', [])) + len(data.get('blocked', [])) + len(data.get('in_progress', [])) + len(data.get('needs_review', []))
+    
     message = {
         "@type": "MessageCard",
         "@context": "https://schema.org/extensions",
-        "themeColor": "0078D4", 
-        "summary": f"Patch Analysis - {data['timestamp']}",
+        "themeColor": "0078D4",
+        "summary": f"Patch Analysis - {data.get('timestamp', 'N/A')}",
         "sections": [{
-            "activityTitle": "🎯 Archibus Patch Tracker",
-            "activitySubtitle": f"Analysis at {data['timestamp']}",
+            "activityTitle": "🎯 Archibus Patch Tracker Status",
+            "activitySubtitle": f"Analysis at {data.get('timestamp', 'N/A')}",
             "facts": [
+                {"name": "Total Patches", "value": str(total)},
                 {"name": "Ready to Start", "value": str(len(data.get('ready_to_start', [])))},
                 {"name": "Blocked", "value": str(len(data.get('blocked', [])))},
                 {"name": "In Progress", "value": str(len(data.get('in_progress', [])))},
@@ -64,25 +48,57 @@ def send_teams_notification(data):
         }]
     }
     
+    # Add details if there are tickets in each category
+    if data.get('ready_to_start'):
+        message['sections'].append({
+            "activityTitle": "✅ Ready to Start",
+            "facts": [{"name": item.get('key'), "value": item.get('summary', 'N/A')} for item in data.get('ready_to_start', [])[:5]]
+        })
+    
+    if data.get('blocked'):
+        message['sections'].append({
+            "activityTitle": "⛔ Blocked",
+            "facts": [{"name": item.get('key'), "value": item.get('blocker', 'N/A')} for item in data.get('blocked', [])[:5]]
+        })
+    
     try:
         import requests
         response = requests.post(webhook_url, json=message, timeout=30)
         if response.status_code == 200:
-            print("✅ Teams notification sent successfully")
+            print(f"✅ Teams notification sent successfully (total: {total} patches)")
             return True
         else:
-            print(f"❌ Teams notification failed: {response.status_code}")
+            print(f"❌ Teams notification failed with status {response.status_code}: {response.text}")
             return False
     except Exception as e:
-        print(f"❌ Error sending Teams notification: {e}")
+        print(f"❌ Error sending Teams notification: {str(e)}")
         return False
 
 if __name__ == "__main__":
-    # Run analysis
-    results = analyze_patches()
+    # Check for --data argument containing JSON
+    data = None
     
-    # Send notification if requested
-    if len(sys.argv) > 1 and sys.argv[1] == "--notify":
-        send_teams_notification(results)
+    for i, arg in enumerate(sys.argv[1:]):
+        if arg == "--data" and i + 1 < len(sys.argv) - 1:
+            try:
+                data = json.loads(sys.argv[i + 2])
+            except (json.JSONDecodeError, IndexError) as e:
+                print(f"❌ Failed to parse --data argument: {e}")
+                sys.exit(1)
     
-    print("\n✅ Patch tracker script completed")
+    # If no data provided, create empty structure
+    if not data:
+        data = {
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC"),
+            "ready_to_start": [],
+            "blocked": [],
+            "in_progress": [],
+            "needs_review": []
+        }
+    
+    # Send Teams notification
+    if "--notify" in sys.argv:
+        success = send_teams_notification(data)
+        sys.exit(0 if success else 1)
+    else:
+        print(f"✅ Patch analysis data: {json.dumps(data, indent=2)}")
