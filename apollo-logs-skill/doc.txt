@@ -1,0 +1,8 @@
+# Otago UAT (East cluster) - CM-104053 style
+.\quick-extract.ps1 -Environment "otago-uat" -Hours "20,21,22"
+
+# General UAT (West cluster) - Different pod/namespace
+.\quick-extract.ps1 -Environment "uat" -Hours "20,21,22"  
+
+# Staging (East cluster)
+.\quick-extract.ps1 -Environment "staging" -Hours "20,21,22"

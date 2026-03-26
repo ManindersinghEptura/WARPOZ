@@ -1,0 +1,2 @@
+{"level":"error","message":"An error occurred in response to: mutation DeleteChecklistAnswer($id: Int!, $checklistId: Int!, $questionId: Int!, $eventId: Int!) {\n  deleteChecklistAnswer(\n    input: {id: $id, checklistId: $checklistId, questionId: $questionId, eventId: $eventId}\n  ) {\n    id\n    value\n    __typename\n  }\n}","service":"onsite-apollo"}
+[{"extensions":{"code":"BAD_USER_INPUT"},"message":"Variable \"$id\" got invalid value 6506314394489310; Int cannot represent non 32-bit signed integer value: 6506314394489310"}]
