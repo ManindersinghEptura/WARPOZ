@@ -1,0 +1,43 @@
+{
+  "tenants": {
+    "eptura-archibus": {
+      "tenant_id": "10b4d43b-4965-499a-89eb-b75b73b50d31",
+      "subscriptions": {
+        "archibus-prod": {
+          "name": "Archibus-PROD",
+          "id": "aaab7ee1-9ce0-453b-9599-efe6c15470af"
+        },
+        "archibus-uat": {
+          "name": "Archibus-UAT", 
+          "id": "0fa1abc1-6f76-41d4-a7ea-dfe84932b544"
+        }
+      }
+    }
+  },
+  "vms": {
+    "shinryo_uat_webcentral_0": {
+      "resource_group": "ARCHIBUS-PROD-JAPANEAST",
+      "tenant": "eptura-archibus",
+      "subscription": "archibus-prod",
+      "region": "Japan East",
+      "purpose": "Archibus UAT Environment",
+      "services": {
+        "tomcat10": {
+          "service_name": "tomcat10",
+          "config_path": "/opt/tomcat10/webapps/archibus/WEB-INF/config/",
+          "log_path": "/opt/tomcat10/webapps/archibus/WEB-INF/config/archibus.log",
+          "restart_script": "/opt/tomcat10/bin/restart_tomcat.sh"
+        },
+        "azure_files": {
+          "mount_point": "/efs",
+          "storage_account": "shinryouatefs",
+          "file_share": "shinryouatefs"
+        }
+      },
+      "monitoring": {
+        "cron_log": "/var/log/watch_changes.log",
+        "sync_target": "/efs2/logs/inst1/"
+      }
+    }
+  }
+}
