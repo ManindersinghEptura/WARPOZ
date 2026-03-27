@@ -13,22 +13,22 @@ Comprehensive team management analysis for Archibus tickets in the Change Manage
 
 **Full Team Analysis**: Complete team lead dashboard
 ```
-Use JQL: project = "Change Management" and "Category and Sub-category[Select List (cascading)]" = Archibus and status NOT IN (Cancelled,Done) ORDER BY assignee ASC, status ASC
+Use JQL: project = "Change Management" and summary ~ "Archibus" and status NOT IN (Cancelled,Done) ORDER BY assignee ASC, status ASC
 ```
 
 **Assignment Distribution**: Focus on workload balance
 ```  
-Use JQL: project = "Change Management" and "Category and Sub-category[Select List (cascading)]" = Archibus and status NOT IN (Cancelled,Done) ORDER BY assignee ASC
+Use JQL: project = "Change Management" and summary ~ "Archibus" and status NOT IN (Cancelled,Done) ORDER BY assignee ASC
 ```
 
 **Age Analysis**: Find critical aging tickets
 ```
-Use JQL: project = "Change Management" and "Category and Sub-category[Select List (cascading)]" = Archibus and status = "More Info Needed" ORDER BY created ASC
+Use JQL: project = "Change Management" and summary ~ "Archibus" and status = "More Info Needed" ORDER BY created ASC
 ```
 
 **Priority Review**: Focus on high-impact tickets
 ```
-Use JQL: project = "Change Management" and "Category and Sub-category[Select List (cascading)]" = Archibus and status NOT IN (Cancelled,Done) ORDER BY priority DESC, created ASC
+Use JQL: project = "Change Management" and summary ~ "Archibus" and status NOT IN (Cancelled,Done) ORDER BY priority DESC, created ASC
 ```
 
 ### 2. Analysis Categories
