@@ -19,14 +19,13 @@ This skill generates comprehensive monthly cost analysis reports for the **Archi
 
 ## Prerequisites
 
-This skill requires a Teams webhook URL stored as an Oz secret:
+This skill uses the Teams webhook URL you already created:
 
 ```bash
-oz secret create --team TEAMS_ARCHIBUS_WEBHOOK_URL
-# Paste your Teams webhook URL when prompted
+TEAMS_ARCHIBUS_WEBHOOK_URL  # Secret you created in production
 ```
 
-**Note:** You can reuse the same Teams webhook for both PROD and UAT notifications.
+**Note:** This skill reuses the same Teams webhook as PROD. Both PROD and UAT messages will post to the same Teams channel.
 
 ## Key Capabilities
 
@@ -90,21 +89,15 @@ oz agent run-cloud \
 
 ## Teams Webhook Setup
 
-### Use Existing Webhook
-If you already set up `TEAMS_ARCHIBUS_WEBHOOK_URL` for PROD, you can reuse it:
+### Using Your Existing Secret
+
+Verify your secret is set:
 
 ```bash
-# Verify secret exists
 oz secret list | grep TEAMS_ARCHIBUS_WEBHOOK_URL
 ```
 
-Both PROD and UAT messages will post to the same Teams channel (recommended for unified reporting).
-
-### Create New Webhook (Optional)
-If you want UAT reports in a separate channel:
-
-1. Open Microsoft Teams
-2. Go to your team's **QA** or **Testing** channel
+Both PROD and UAT skills use the same `TEAMS_ARCHIBUS_WEBHOOK_URL` secret, so both messages post to the same Teams channel.
 3. Click **...** → **Connectors**
 4. Search for **Incoming Webhook**
 5. Click **Configure**
@@ -155,8 +148,8 @@ Next Review: April 2nd at 9 AM
 
 ```
 TEAMS_ARCHIBUS_WEBHOOK_URL    (Oz secret - your Teams webhook)
-AZURE_TENANT_ID                (Already configured)
-AZURE_SUBSCRIPTION_ID           (Already configured)
+AZURE_TENANT_ID               (Already configured)
+AZURE_SUBSCRIPTION_ID          (Already configured)
 ```
 
 ## UAT Budget Guidelines
